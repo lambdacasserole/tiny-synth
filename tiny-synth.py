@@ -1,5 +1,5 @@
 import os.path
-
+import sys
 
 compiled_function_names = []
 compiled_functions = []
@@ -10,6 +10,11 @@ def is_list(obj):
 
 
 def read_file(path):
+    """Gets the text from the file at the specified path.
+
+    Args:
+        path (str): The path of the file to read.
+    """
     with open(path, 'r') as file:
         return file.read()
 
@@ -103,5 +108,25 @@ def compile_function(name):
     compiled_function_names.append(name)
 
 
-compile_function('bsd')
-print(compiled_functions)
+def format(functions):
+    output = '\n\n'.join(functions)
+    output = output.replace('{', '{\n')
+    output = output.replace('}', '\n}')
+    lines = output.split('\n')
+    indentation_level = 0
+    output = []
+    for line in lines:
+        new_indentation_level = line.count('{') - line.count('}')
+        if new_indentation_level < 0:
+            indentation_level = new_indentation_level
+        formatted_line = ''
+        for i in range(0, indentation_level):
+            formatted_line += '    '
+        formatted_line += line
+        output.append(formatted_line)
+        indentation_level = new_indentation_level
+    return '\n'.join(output)
+
+
+compile_function(sys.argv[1])
+print(format(compiled_functions))
