@@ -2,8 +2,8 @@ import os.path
 import sys
 
 
-compiled_function_names = [] # Store the names of compiled functions here to prevent duplicate compilations.
-compiled_functions = [] # Store the C source code of compiled functions here.
+compiled_function_names = []  # Store the names of compiled functions here to prevent duplicate compilations.
+compiled_functions = []  # Store the C source code of compiled functions here.
 
 
 def is_list(obj):
@@ -118,18 +118,18 @@ def read_from_tokens(tokens):
         raise SyntaxError('Unexpected end of input.')
     token = tokens.pop(0)
     if '(' == token:
-        list = []
+        children = []
         while tokens[0] != ')':
-            list.append(read_from_tokens(tokens))
+            children.append(read_from_tokens(tokens))
         tokens.pop(0)
-        return list
+        return children
     elif ')' == token:
         raise SyntaxError('Unexpected closing parenthesis.')
     else:
         return token
 
 
-def compile(tree, in_function=''):
+def compile_tree(tree, in_function=''):
     """Compiles an abstract syntax tree into C code.
 
     Args:
@@ -143,14 +143,14 @@ def compile(tree, in_function=''):
         if is_primitive(function_name):
             primitive = get_primitive(function_name)
             for i, arg in enumerate(args):
-                primitive = primitive.replace('%' + str(i + 1), compile(arg, in_function))
+                primitive = primitive.replace('%' + str(i + 1), compile_tree(arg, in_function))
             return primitive
         elif is_function(function_name):
             if function_name not in compiled_function_names and in_function != function_name:
                 compile_function(function_name)
             compiled_args = []
             for arg in args:
-                compiled_args.append(compile(arg, in_function))
+                compiled_args.append(compile_tree(arg, in_function))
             return function_name + '(' + ', '.join(compiled_args) + ')'
     else:
         return tree
@@ -176,14 +176,14 @@ def compile_function(name):
         code += parameter_type[1] + ' ' + parameter_type[0]
     code += ') {'
     code += 'return '
-    code += compile(parse(metadata_source[1]), name)
+    code += compile_tree(parse(metadata_source[1]), name)
     code += ';'
     code += '}'
     compiled_functions.append(code)
     compiled_function_names.append(name)
 
 
-def format(functions):
+def beautify(functions):
     """Pretty prints an array of compiled functions as one string.
 
     Args:
@@ -191,7 +191,7 @@ def format(functions):
 
     """
     output = '\n\n'.join(functions)
-    output = output.replace('{', '{\n') # Sort out braces.
+    output = output.replace('{', '{\n')  # Sort out braces.
     output = output.replace('}', '\n}')
     lines = output.split('\n')
     indentation_level = 0
@@ -199,7 +199,7 @@ def format(functions):
     for line in lines:
         new_indentation_level = line.count('{') - line.count('}')
         if new_indentation_level < 0:
-            indentation_level = new_indentation_level # Un-indents need to happen on this line, not the next.
+            indentation_level = new_indentation_level  # Un-indents need to happen on this line, not the next.
         formatted_line = ''
         for i in range(0, indentation_level):
             formatted_line += '    '
@@ -211,4 +211,4 @@ def format(functions):
 
 # Compile and print specified function.
 compile_function(sys.argv[1])
-print(format(compiled_functions))
+print(beautify(compiled_functions))
