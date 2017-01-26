@@ -23,3 +23,15 @@ This includes the following:
 * `<return_type>` - The return type of the C method to be generated.
 * `<param_name>:<param_type>` - The name and type of each parameter to be included in the generated C method. Can be repeated arbitratily many times (comma-separated).
 * `<functional_code>` - The functional code to compile as the body of the generated C method.
+
+A primitive file (`.pc` extension) is written as a very small piece of C code with substitution placeholders for each argument of the function that corresponds to that primitive. For example `add.pc` contains this:
+
+```
+(%1 + %2)
+```
+
+## Reason
+With functional programs being easier to reason about in general than imperative programs, I thought it'd a be a fun little experiment to try to synthesise some imperative code from functional code.
+
+## Limitations
+This isn't a serious development tool, and comes with some serious limitations and caveats. I'm sure there are a billion and one ways this could behave differently than expected.
