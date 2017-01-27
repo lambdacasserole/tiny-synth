@@ -30,6 +30,15 @@ A primitive file (`.pc` extension) is written as a very small piece of C code wi
 (%1 + %2)
 ```
 
+## Usage
+Invoke the program on the command line like this:
+
+```
+python tiny-synth.py <function_name>
+```
+
+Where `function_name` is the name of the function you want to compile.
+
 ## Reason
 With functional programs being easier to reason about in general than imperative programs, I thought it'd a be a fun little experiment to try to synthesise some imperative code from functional code.
 
